@@ -49,6 +49,14 @@
 #include "SDL_rpiopengles.h"
 #include "SDL_rpimouse.h"
 
+
+void sighandler( int sig  ){
+    printf("RPI video got signal\n");
+#ifdef SDL_INPUT_LINUXEV    
+    SDL_EVDEV_Quit();
+#endif    
+}
+
 static int
 RPI_Available(void)
 {
@@ -58,16 +66,23 @@ RPI_Available(void)
 static void
 RPI_Destroy(SDL_VideoDevice * device)
 {
+//    RPI_EventQuit(device);
+
     /*    SDL_VideoData *phdata = (SDL_VideoData *) device->driverdata; */
 
     if (device->driverdata != NULL) {
         device->driverdata = NULL;
     }
 }
-
+	
 static SDL_VideoDevice *
 RPI_Create()
 {
+	signal( SIGSEGV,sighandler );
+	signal( SIGILL,sighandler );
+	signal( SIGFPE,sighandler );
+	signal( SIGBUS,sighandler );
+
     SDL_VideoDevice *device;
     SDL_VideoData *phdata;
 
@@ -152,6 +167,14 @@ RPI_VideoInit(_THIS)
 
     SDL_zero(current_mode);
 
+    /* Allocate display internal data */
+    data = (SDL_DisplayData *) SDL_calloc(1, sizeof(SDL_DisplayData));
+    if (data == NULL) {
+        return SDL_OutOfMemory();
+    }
+
+    data->dispman_display = vc_dispmanx_display_open( 0 /* LCD */);
+
     if (graphics_get_display_size( 0, &w, &h) < 0) {
         return -1;
     }
@@ -169,22 +192,14 @@ RPI_VideoInit(_THIS)
     display.desktop_mode = current_mode;
     display.current_mode = current_mode;
 
-    /* Allocate display internal data */
-    data = (SDL_DisplayData *) SDL_calloc(1, sizeof(SDL_DisplayData));
-    if (data == NULL) {
-        return SDL_OutOfMemory();
-    }
-
-    data->dispman_display = vc_dispmanx_display_open( 0 /* LCD */);
-
     display.driverdata = data;
 
     SDL_AddVideoDisplay(&display);
 
-#ifdef SDL_INPUT_LINUXEV    
+#ifdef SDL_INPUT_LINUXEV
     SDL_EVDEV_Init();
-#endif    
-    
+#endif
+
     RPI_InitMouse(_this);
 
     return 1;
@@ -193,6 +208,7 @@ RPI_VideoInit(_THIS)
 void
 RPI_VideoQuit(_THIS)
 {
+    printf("RPI_VideoQuit\n");
 #ifdef SDL_INPUT_LINUXEV    
     SDL_EVDEV_Quit();
 #endif    
@@ -211,21 +227,58 @@ RPI_SetDisplayMode(_THIS, SDL_VideoDisplay * display, SDL_DisplayMode * mode)
     return 0;
 }
 
-int
-RPI_CreateWindow(_THIS, SDL_Window * window)
-{
-    SDL_WindowData *wdata;
-    SDL_VideoDisplay *display;
-    SDL_DisplayData *displaydata;
+int layer0=0;
+
+int RPI_CreateLayer(SDL_VideoDisplay *display){
+
     VC_RECT_T dst_rect;
     VC_RECT_T src_rect;
     VC_DISPMANX_ALPHA_T         dispman_alpha;
     DISPMANX_UPDATE_HANDLE_T dispman_update;
 
+    SDL_DisplayData *displaydata;
+
+    int w = display->desktop_mode.w;
+    int h = display->desktop_mode.h;
+
+    displaydata = (SDL_DisplayData *) display->driverdata;
+
     /* Disable alpha, otherwise the app looks composed with whatever dispman is showing (X11, console,etc) */
     dispman_alpha.flags = DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS; 
     dispman_alpha.opacity = 0xFF; 
     dispman_alpha.mask = 0;
+
+    /* Create a dispman element and associate a window to it */
+    dst_rect.x = 0;
+    dst_rect.y = 0;
+    dst_rect.width = w;
+    dst_rect.height = h;
+
+    src_rect.x = 0;
+    src_rect.y = 0;
+    src_rect.width = w << 16;
+    src_rect.height = h << 16;
+
+    dispman_update = vc_dispmanx_update_start( 0 );
+
+    layer0 = vc_dispmanx_element_add ( dispman_update, displaydata->dispman_display, 
+SDL_RPI_VIDEOLAYER, 
+&dst_rect, 
+0,
+&src_rect,
+//DISPMANX_PROTECTION_HDCP,
+DISPMANX_PROTECTION_NONE, 
+//DISPMANX_PROTECTION_MAX, 
+&dispman_alpha /*alpha*/, 0/*clamp*/, 0/*transform*/);
+
+    vc_dispmanx_update_submit_sync( dispman_update );
+}
+
+int
+RPI_CreateWindow(_THIS, SDL_Window * window)
+{
+    SDL_WindowData *wdata;
+    SDL_VideoDisplay *display;
 
     /* Allocate window internal data */
     wdata = (SDL_WindowData *) SDL_calloc(1, sizeof(SDL_WindowData));
@@ -233,7 +286,6 @@ RPI_CreateWindow(_THIS, SDL_Window * window)
         return SDL_OutOfMemory();
     }
     display = SDL_GetDisplayForWindow(window);
-    displaydata = (SDL_DisplayData *) display->driverdata;
 
     /* Windows have one size for now */
     window->w = display->desktop_mode.w;
@@ -242,23 +294,12 @@ RPI_CreateWindow(_THIS, SDL_Window * window)
     /* OpenGL ES is the law here, buddy */
     window->flags |= SDL_WINDOW_OPENGL;
 
-    /* Create a dispman element and associate a window to it */
-    dst_rect.x = 0;
-    dst_rect.y = 0;
-    dst_rect.width = window->w;
-    dst_rect.height = window->h;
+if(!layer0) RPI_CreateLayer(display);
 
-    src_rect.x = 0;
-    src_rect.y = 0;
-    src_rect.width = window->w << 16;
-    src_rect.height = window->h << 16;
-
-    dispman_update = vc_dispmanx_update_start( 0 );
-    wdata->dispman_window.element = vc_dispmanx_element_add ( dispman_update, displaydata->dispman_display, SDL_RPI_VIDEOLAYER /* layer */, &dst_rect, 0/*src*/, &src_rect, DISPMANX_PROTECTION_NONE, &dispman_alpha /*alpha*/, 0/*clamp*/, 0/*transform*/);
+    wdata->dispman_window.element = layer0;
     wdata->dispman_window.width = window->w;
     wdata->dispman_window.height = window->h;
-    vc_dispmanx_update_submit_sync( dispman_update );
-    
+
     if (!_this->egl_data) {
         if (SDL_GL_LoadLibrary(NULL) < 0) {
             return -1;
@@ -276,7 +317,7 @@ RPI_CreateWindow(_THIS, SDL_Window * window)
     /* One window, it always has focus */
     SDL_SetMouseFocus(window);
     SDL_SetKeyboardFocus(window);
-
+printf("RPI Window Created %p\n",window);
     /* Window has been successfully created */
     return 0;
 }

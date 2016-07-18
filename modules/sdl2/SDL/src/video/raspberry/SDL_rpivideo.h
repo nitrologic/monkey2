@@ -50,7 +50,8 @@ typedef struct SDL_WindowData
 #endif    
 } SDL_WindowData;
 
-#define SDL_RPI_VIDEOLAYER 10000 /* High enough so to occlude everything */
+//#define SDL_RPI_VIDEOLAYER 10000 /* High enough so to occlude everything */
+#define SDL_RPI_VIDEOLAYER 0 /* High enough so to occlude everything */
 #define SDL_RPI_MOUSELAYER SDL_RPI_VIDEOLAYER + 1
 
 
