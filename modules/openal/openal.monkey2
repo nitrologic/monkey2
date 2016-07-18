@@ -22,6 +22,12 @@
 	#import "<libopenal.a>"
 	#import "<AL/al.h>"
 	#import "<AL/alc.h>"
+
+#else if __HOSTOS__="pi"
+
+	#import "<libopenal.a>"
+	#import "<AL/al.h>"
+	#import "<AL/alc.h>"
 	
 #endif
 		
