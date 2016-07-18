@@ -35,6 +35,8 @@
 #include "SDL_config_windows.h"
 #elif defined(__MACOSX__)
 #include "SDL_config_macosx.h"
+#elif defined(__PI__)
+#include "SDL_config_pi.h"
 #elif defined(__LINUX__)
 #include "SDL_config_linux.h"
 #elif defined(EMSCRIPTEN)
