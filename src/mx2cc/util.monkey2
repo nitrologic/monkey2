@@ -9,6 +9,8 @@ Const HostOS:="windows"
 Const HostOS:="windows"
 #Elseif __HOSTOS__="linux"
 Const HostOS:="linux"
+#Elseif __HOSTOS__="pi"
+Const HostOS:="pi"
 #Endif
 
 Const CHAR_EOL:=10
