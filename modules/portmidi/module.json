@@ -1,0 +1,8 @@
+{
+	"module":"portmidi",
+	"version":"0.0.1",
+	"about":"Desktop MIDI module",
+	"author":"Simon Armstrong",
+	"support":"https://github.com.nitrologic/m2",
+	"depends":["libc"]
+}
