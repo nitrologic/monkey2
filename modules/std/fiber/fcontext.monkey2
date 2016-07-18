@@ -14,6 +14,10 @@
 	#import "native/asm/make_x86_64_sysv_elf_gas.S"
 	#import "native/asm/jump_x86_64_sysv_elf_gas.S"
 	#import "native/asm/ontop_x86_64_sysv_elf_gas.S"
+#else if __HOSTOS__="pi"
+	#import "native/asm/make_arm_aapcs_elf_gas.S"
+	#import "native/asm/jump_arm_aapcs_elf_gas.S"
+	#import "native/asm/ontop_arm_aapcs_elf_gas.S"
 #end
 
 'Testing purposes only - use Fiber instead!

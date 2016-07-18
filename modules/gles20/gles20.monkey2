@@ -24,6 +24,14 @@ Using monkey
 	
 		#Import "native/gles20_macos.h"
 		#Import "<OpenGL.framework>"
+
+	#Else If __HOSTOS__="pi"
+
+		#Import "<EGL/egl.h>"
+		#Import "<GLES2/gl2.h>"
+		#Import "<libEGL.a>"
+		#Import "<libGLESv2.a>"
+		#Import "<libbcm_host.a>"		
 		
 	#Else If __HOSTOS__="linux"
 	
