@@ -51,9 +51,9 @@
 
 
 void sighandler( int sig  ){
-    printf("RPI video got signal\n");
+//    printf("RPI video got signal\n");
 #ifdef SDL_INPUT_LINUXEV    
-    SDL_EVDEV_Quit();
+//    SDL_EVDEV_Quit();
 #endif    
 }
 
