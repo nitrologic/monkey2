@@ -207,8 +207,8 @@ Class VPaint Extends Window
 	Method New(title:String)
 		Super.New(title,720,560,WindowFlags.Resizable)		
 		zoom=2
-'		pane=New VPane(2048,2048,Color.Black)
-		pane=New VPane(4096,4096,Color.Black)
+		pane=New VPane(2048,2048,Color.Black)
+'		pane=New VPane(4096,4096,Color.Black)
 		browse=New VBrowse()
 		ink=New Color
 		radius=1.0
