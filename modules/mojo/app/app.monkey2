@@ -287,6 +287,8 @@ Class AppInstance
 	#end
 	Method Terminate()
 
+		SDL_Quit()
+
 		libc.exit_( 0 )
 	End
 	
