@@ -41,7 +41,13 @@ Class AudioDevice
 	Method Init()
 	
 		Local error:=""
-
+'		local enumeration:= alcIsExtensionPresent(Cast<ALCdevice ptr>(0), "ALC_ENUMERATION_EXT".Data)
+		if true'enumeration
+			local p:=Cast<Byte ptr>(alcGetString(Cast<ALCdevice ptr>(0), ALC_DEVICE_SPECIFIER))
+			local s:=String.FromCString(p)
+			print "OpenAL Enumeration:"+s
+		endif
+		
 		_alcDevice=alcOpenDevice( Null )
 		If _alcDevice
 			_alcContext=alcCreateContext( _alcDevice,Null )
