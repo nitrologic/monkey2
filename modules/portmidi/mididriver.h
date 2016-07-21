@@ -11,7 +11,7 @@ struct MidiEvent{
 	PmEvent event;
 	std::string message;
 
-	MidiEvent(PmEvent e,std::string &m):event(e),message(m){
+	MidiEvent(PmEvent e,std::string m):event(e),message(m){
 	}
 };
 
@@ -47,12 +47,26 @@ public:
 			PmError error=Pm_Write(stream,buffer,length);
 		}
 	}
+/*
+   When receiving sysex messages, the sysex message is terminated
+   by either an EOX status byte (anywhere in the 4 byte messages) or
+   by a non-real-time status byte in the low order byte of the message.
+   If you get a non-real-time status byte but there was no EOX byte, it 
+   means the sysex message was somehow truncated. This is not
+   considered an error; e.g., a missing EOX can result from the user
+   disconnecting a MIDI cable during sysex transmission.
+*/
+	void endSysex(){
+		eventStack.push(MidiEvent(sysEvent,buffer.str()));
+		buffer=std::stringbuf();
+		isSys=false;
+		printf("isSys false\n");
+	}
 
 	bool bufferSysexByte(int b){
 		buffer.sputc(b);
-		if (b==0xf7){
-			eventStack.push(MidiEvent(sysEvent,emptyString));
-			isSys=false;
+		if((b&0xf8)==0xf8){
+			endSysex();
 			return true;
 		}
 		return false;
@@ -60,6 +74,10 @@ public:
 
 	void bufferSysex(int b0,int b1,int b2){
 		if (bufferSysexByte(b0)) return;
+		if(b0==0xf7){
+			endSysex();
+			return;
+		}
 		if (bufferSysexByte(b1)) return;
 		if (bufferSysexByte(b2)) return;
 	}
@@ -87,6 +105,8 @@ public:
 
 		if(result>0){
 			int n = Pm_Read(stream,buffer,256);		
+			fflush(stdout);
+			//printf("n=%d\n",n);
 			for(int i=0;i<n;i++){
 				PmMessage message=buffer[i].message;
 				int status=Pm_MessageStatus(message);
@@ -95,11 +115,11 @@ public:
 				if(isSys){
 					bufferSysex(status,b0,b1);
 				}else{
-
 					if(status==0xf0){
+						printf("SYSEX %02x%02x\n",b0,b1);
 						isSys=true;
 						sysEvent=buffer[i];
-						bufferSysex(status,b0,b1);
+						bufferSysex(0x00,b0,b1);
 					}else{
 						eventStack.push(MidiEvent(buffer[i],emptyString));
 					}
