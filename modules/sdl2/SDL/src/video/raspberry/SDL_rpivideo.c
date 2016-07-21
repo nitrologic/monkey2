@@ -288,6 +288,8 @@ RPI_CreateWindow(_THIS, SDL_Window * window)
     display = SDL_GetDisplayForWindow(window);
 
     /* Windows have one size for now */
+window->x=0;
+window->y=0;
     window->w = display->desktop_mode.w;
     window->h = display->desktop_mode.h;
 
