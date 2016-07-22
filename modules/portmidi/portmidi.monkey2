@@ -87,8 +87,7 @@ Class MidiDriver Extends Void
 	Method OpenInput:Handle(index:Int)
 	Method HasInput:Bool(handle:Handle)
 	Method MidiEventData:Int()
-	Method MidiEventMessage:Byte Ptr()
-	Method MidiEventMessageLength:Int()
+	Method MidiEventMessage:int(buffer:Void Ptr,length:int)
 	Method MidiEventTimestamp:Double()	
 	Method CloseInput(handle:Handle)
 End
@@ -249,5 +248,15 @@ Class PortMidi
 	Method EventTime:Double()
 		Return driver.MidiEventTimestamp()
 	End
-End
 
+	Field sysexBuffer:=New Byte[65536]
+
+#rem monkeydoc Return contents of Sysex message
+#end
+	Method EventContent:Byte[]()		
+		Local b:=Varptr sysexBuffer[0]
+		Local n:=driver.MidiEventMessage(b,65536)
+		Return sysexBuffer.Slice(0,n)
+	End
+
+End

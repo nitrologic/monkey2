@@ -60,26 +60,19 @@ public:
 		eventStack.push(MidiEvent(sysEvent,buffer.str()));
 		buffer=std::stringbuf();
 		isSys=false;
-		printf("isSys false\n");
-	}
-
-	bool bufferSysexByte(int b){
-		buffer.sputc(b);
-		if((b&0xf8)==0xf8){
-			endSysex();
-			return true;
-		}
-		return false;
 	}
 
 	void bufferSysex(int b0,int b1,int b2){
-		if (bufferSysexByte(b0)) return;
-		if(b0==0xf7){
-			endSysex();
-			return;
-		}
-		if (bufferSysexByte(b1)) return;
-		if (bufferSysexByte(b2)) return;
+		buffer.sputc(b0);
+//		if(b0==0xf7 || b1==0xf7 || b2==0xf7){
+
+//		if(b0&0x80){
+//			endSysex();
+//			return;
+//		}
+//		if (b0==0x00 && b1==0x00 && b2==0x70)){
+		buffer.sputc(b1);
+		buffer.sputc(b2);
 	}
 
 	MidiEvent *currentEvent(){
@@ -106,17 +99,30 @@ public:
 		if(result>0){
 			int n = Pm_Read(stream,buffer,256);		
 			fflush(stdout);
-			//printf("n=%d\n",n);
 			for(int i=0;i<n;i++){
 				PmMessage message=buffer[i].message;
 				int status=Pm_MessageStatus(message);
 				int b0=Pm_MessageData1(message);
 				int b1=Pm_MessageData2(message);
 				if(isSys){
-					bufferSysex(status,b0,b1);
+//					if((status&0xf8)==0){//!=0xf8){
+					if((status&0x80)==0){//!=0xf8){
+						bufferSysex(status,b0,b1);
+#define LOG_SYSEX
+#ifdef LOG_SYSEX						
+						printf("sysbuffer %02x%02x%02x ",status,b0,b1);						
+						if (status<32)status=32;
+						if (b0<32) b0=32;
+						if (b1<32) b1=32;
+						printf("%c%c%c\n",status,b0,b1);
+						fflush(stdout);
+#endif						
+					}else{
+//						printf("not SYSEX %02x%02x\n",b0,b1);
+						eventStack.push(MidiEvent(buffer[i],emptyString));
+					}
 				}else{
 					if(status==0xf0){
-						printf("SYSEX %02x%02x\n",b0,b1);
 						isSys=true;
 						sysEvent=buffer[i];
 						bufferSysex(0x00,b0,b1);
@@ -220,17 +226,13 @@ public:
 		}
 		return false;
 	}
-
+	
 	int MidiEventData(){
 		return currentEvent->event.message;
 	}
 	
-	const char *MidiEventMessage(){
-		return currentEvent->message.c_str();
-	}
-	
-	int MidiEventMessageLength(){
-		return currentEvent->message.length();
+	size_t MidiEventMessage(void *buffer,int bufferSize){
+		return currentEvent->message.copy((char*)buffer,bufferSize,0);
 	}
 	
 	double MidiEventTimestamp(){
