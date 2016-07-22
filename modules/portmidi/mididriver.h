@@ -64,13 +64,10 @@ public:
 
 	void bufferSysex(int b0,int b1,int b2){
 		buffer.sputc(b0);
-//		if(b0==0xf7 || b1==0xf7 || b2==0xf7){
-
-//		if(b0&0x80){
-//			endSysex();
-//			return;
-//		}
-//		if (b0==0x00 && b1==0x00 && b2==0x70)){
+		if(b0==0xf7 || b1==0xf7 || b2==0xf7){
+			endSysex();
+			return;
+		}
 		buffer.sputc(b1);
 		buffer.sputc(b2);
 	}
