@@ -4,13 +4,6 @@
 Using std..
 Using portmidi..
 
-Const Hexits:="0123456789ABCDEF "
-Function Hex1:String(b:Int)
-	Local b0:Int=(b Shr 4)&$f
-	Local b1:int=(b & $f)
-	Return Hexits.Slice(b0,b0+1)+Hexits.Slice(b1,b1+1)	
-end
-
 Const Higit:=New String[]("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F")
 Function Hex2:String(b:Int)
 	Local b0:Int=(b Shr 4)&$f
@@ -32,6 +25,12 @@ Function Main()
 	Local outputs:=portMidi.outputDevices.Length
 	For Local i:=0 Until outputs
 		portMidi.OpenOutput(i)
+		Local MidiReset0:Int=$41f0
+		Local MidiReset1:Int=$1100
+		Local MidiReset:Int=$404090
+		Print "sending midi Reset"		
+		portMidi.OutputData(i,MidiReset0)
+		portMidi.OutputData(i,MidiReset1)
 	Next
 
 	While True
@@ -39,7 +38,12 @@ Function Main()
 			Local b:=portMidi.EventDataBytes()
 			Local s:=portMidi.EventContent()
 '			Print "MidiEvent:"+b[0]+" "+b[1]+" "+b[2]+" "+b[3]+" +"+s.Length
-			Print "MidiEvent:"+Hex2(b[0])+" "+Hex2(b[1])+" "+Hex2(b[2])+" +"+s.Length
+			Print "MidiEvent:"+Hex2(b[0])+" "+Hex2(b[1])+" "+Hex2(b[2])+" +"+s.Length			
+			Local bin:String
+			For Local i:=0 Until s.Length
+				bin+=Hex2(s[i])
+			Next
+			Print bin						
 		Wend
 		portMidi.Sleep(1.0/60)
 	Wend

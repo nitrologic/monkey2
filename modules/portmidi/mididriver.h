@@ -21,7 +21,7 @@ public:
 	int index;
 	PortMidiStream *stream;
 	std::queue<MidiEvent> eventStack;
-	std::stringbuf buffer;
+	std::stringbuf sysexBuffer;
 	PmError error;
 	const char *errorText;
 	PmEvent sysEvent;
@@ -56,20 +56,22 @@ public:
    considered an error; e.g., a missing EOX can result from the user
    disconnecting a MIDI cable during sysex transmission.
 */
-	void endSysex(){
-		eventStack.push(MidiEvent(sysEvent,buffer.str()));
-		buffer=std::stringbuf();
-		isSys=false;
+
+
+	void flushSysex(){
+		eventStack.push(MidiEvent(sysEvent,sysexBuffer.str()));
+		sysexBuffer=std::stringbuf();
 	}
 
 	void bufferSysex(int b0,int b1,int b2){
-		buffer.sputc(b0);
+		sysexBuffer.sputc(b0);
 		if(b0==0xf7 || b1==0xf7 || b2==0xf7){
-			endSysex();
+			flushSysex();
+			isSys=false;
 			return;
 		}
-		buffer.sputc(b1);
-		buffer.sputc(b2);
+		sysexBuffer.sputc(b1);
+		sysexBuffer.sputc(b2);
 	}
 
 	MidiEvent *currentEvent(){
@@ -91,21 +93,19 @@ public:
 			return false;
 		}
 						
-		static PmEvent buffer[256];
+		static PmEvent buffer[8192];
 
 		if(result>0){
-			int n = Pm_Read(stream,buffer,256);		
-			fflush(stdout);
+			int n = Pm_Read(stream,buffer,8192);		
 			for(int i=0;i<n;i++){
 				PmMessage message=buffer[i].message;
 				int status=Pm_MessageStatus(message);
 				int b0=Pm_MessageData1(message);
 				int b1=Pm_MessageData2(message);
 				if(isSys){
-//					if((status&0xf8)==0){//!=0xf8){
 					if((status&0x80)==0){//!=0xf8){
 						bufferSysex(status,b0,b1);
-#define LOG_SYSEX
+//#define LOG_SYSEX
 #ifdef LOG_SYSEX						
 						printf("sysbuffer %02x%02x%02x ",status,b0,b1);						
 						if (status<32)status=32;
@@ -115,7 +115,8 @@ public:
 						fflush(stdout);
 #endif						
 					}else{
-//						printf("not SYSEX %02x%02x\n",b0,b1);
+						if (sysexBuffer.str().length()) flushSysex();						 
+
 						eventStack.push(MidiEvent(buffer[i],emptyString));
 					}
 				}else{
@@ -129,7 +130,7 @@ public:
 				}
 			}
 		}	
-						
+					
 		return !eventStack.empty();
 	}
 		
@@ -203,7 +204,11 @@ public:
 		PmEvent event={0};
 		event.message=data;
 		auto output=outputs[handle];
-		if(output) output->writeData(&event,1);
+		if(output){
+			output->writeData(&event,1);
+		}else{
+			printf("midi output on closed device\n");
+		}
 	}
 	
 	void CloseOutput(int handle){
