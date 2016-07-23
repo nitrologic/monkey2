@@ -65,7 +65,7 @@ Class Event Abstract
 	
 	#end
 	Property Eaten:Bool()
-		Return (_type & EventType.Eaten)<>Null
+		Return (_type & EventType.Eaten)=EventType.Eaten
 	End
 	
 	#rem monkeydoc Eats the event.
