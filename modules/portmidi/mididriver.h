@@ -63,7 +63,7 @@ public:
 
 	void flushSysex(){
 		eventStack.push(MidiEvent(sysEvent,sysexBuffer.str()));
-		sysexBuffer=std::stringbuf();
+		sysexBuffer.str("");
 	}
 
 	void bufferSysex(int b0,int b1,int b2){
@@ -203,8 +203,6 @@ public:
 		return id;
 	}
 	
-	PmEvent event[MaxMessages]={0};
-
 	void OutputMessage(int handle,int data){
 		PmEvent event={0};
 		event.message=data;
@@ -216,14 +214,16 @@ public:
 		}
 	}
 	
+	PmEvent events[MaxMessages];
+
 	void OutputMessages(int handle,int *data,int count){
 		if (count>=MaxMessages) return;
 		for(int i=0;i<count;i++){
-			event[i].message=data[i];
+			events[i].message=data[i];
 		}
 		auto output=outputs[handle];
 		if(output){
-			output->writeData(event,count);
+			output->writeData(events,count);
 		}else{
 			printf("midi output on closed device\n");
 		}
