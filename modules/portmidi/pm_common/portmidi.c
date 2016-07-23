@@ -1037,13 +1037,18 @@ void pm_read_short(PmInternal *midi, PmEvent *event)
                         (status << (8 * midi->sysex_message_count++));
                 if (midi->sysex_message_count == 4) {
                     pm_flush_sysex(midi, event->timestamp);
+                      printf("flushing sysex %d\n",midi->sysex_message_count);
                 }
             } else { /* otherwise, it's not real-time. This interrupts
                       * a sysex message in progress */
+                printf("non realtime sysex interrupt\n");
                 midi->sysex_in_progress = FALSE;
             }
         } else if (Pm_Enqueue(midi->queue, event) == pmBufferOverflow) {
+            printf("pmBufferOverflow\n");
             midi->sysex_in_progress = FALSE;
+        } else{
+            printf("pmBuffer unknown\n");           
         }
     }
 }

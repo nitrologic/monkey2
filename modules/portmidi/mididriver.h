@@ -7,6 +7,8 @@
 #include <sstream>
 #include <map>
 
+#define MaxMessages 8192
+
 struct MidiEvent{
 	PmEvent event;
 	std::string message;
@@ -47,6 +49,7 @@ public:
 			PmError error=Pm_Write(stream,buffer,length);
 		}
 	}
+
 /*
    When receiving sysex messages, the sysex message is terminated
    by either an EOX status byte (anywhere in the 4 byte messages) or
@@ -200,7 +203,9 @@ public:
 		return id;
 	}
 	
-	void OutputData(int handle,int data){
+	PmEvent event[MaxMessages]={0};
+
+	void OutputMessage(int handle,int data){
 		PmEvent event={0};
 		event.message=data;
 		auto output=outputs[handle];
@@ -211,6 +216,19 @@ public:
 		}
 	}
 	
+	void OutputMessages(int handle,int *data,int count){
+		if (count>=MaxMessages) return;
+		for(int i=0;i<count;i++){
+			event[i].message=data[i];
+		}
+		auto output=outputs[handle];
+		if(output){
+			output->writeData(event,count);
+		}else{
+			printf("midi output on closed device\n");
+		}
+	}
+
 	void CloseOutput(int handle){
 		auto output=outputs[handle];
 		if(output) output->Close();
