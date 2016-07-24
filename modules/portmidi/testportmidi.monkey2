@@ -4,10 +4,10 @@
 Using std..
 Using portmidi..
 
-Const SysEx1:=New UByte[]($f0,$43,$20,$9,$f7,0)
-Const SysEx2:=New UByte[]($f0,$43,$20,$0,$f7,0)
+Const SysEx1:=New int[]($f0,$43,$20,$9,$f7,0)
+Const SysEx2:=New int[]($f0,$43,$20,$0,$f7,0)
 
-Function BytesToMessages:Int[](bytes:UByte[])
+Function BytesToMessages:Int[](bytes:int[])
 	Local n:=bytes.Length
 	Local n3:=n/3	'TODO currently MUST be a multiple of 3
 	Local ints:=New Int[n3]
@@ -19,6 +19,7 @@ End
 
 Function Main()
 	Print "PortMidi test 0.1"
+
 	Print "Scanning Midi Bus, please wait."
 	Local portMidi:=New PortMidi()
 
@@ -45,17 +46,27 @@ Function Main()
 '		portMidi.SendMessages(i,sysex)
 	Next
 
-	While True
+	local timeout:=1000
+	print "monitoring midi events"
+
+	While timeout>0
+		timeout-=1
 		While portMidi.HasEvent()
 			Local b:=portMidi.EventDataBytes()
 			Local s:=portMidi.EventContent()
+
+			if b[0]=$f8 continue
+
 '			Print "MidiEvent:"+b[0]+" "+b[1]+" "+b[2]+" "+b[3]+" +"+s.Length
 			Print "MidiEvent:"+Hex2(b[0])+" "+Hex2(b[1])+" "+Hex2(b[2])+" +"+s.Length			
-			Local bin:String
-			For Local i:=0 Until s.Length
-				bin+=Hex2(s[i])
-			Next
-			Print bin						
+
+			if s.Length
+				Local bin:String
+				For Local i:=0 Until s.Length
+					bin+=Hex2(s[i])
+				Next
+				Print bin						
+			endif
 		Wend
 		portMidi.Sleep(1.0/60)
 	Wend

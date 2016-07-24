@@ -1,8 +1,0 @@
-{
-	"module":"portaudio",
-	"version":"0.0.1",
-	"about":"Desktop Audio IO",
-	"author":"Simon Armstrong",
-	"support":"https://github.com.nitrologic/m2",
-	"depends":["libc"]
-}
