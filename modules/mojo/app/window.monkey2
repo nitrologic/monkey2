@@ -120,6 +120,11 @@ Class Window Extends View
 			Frame=New Recti( 0,0,w,h )
 		Endif
 	
+#Else if __HOSTOS__="pi"
+		If w<>Frame.Width Or h<>Frame.Height
+			Frame=New Recti( 0,0,w,h )
+			print "w="+w+" h="+h
+		Endif
 #Else
 		'ugly...fixme.
 		If MinSize<>_minSize
