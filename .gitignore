@@ -17,8 +17,6 @@ __PAGES__/
 /tmp/*
 !/tmp/.gitignore
 
-**/assets/mojo
-
 Monkey2 (Windows).exe
 
 .DS_Store
