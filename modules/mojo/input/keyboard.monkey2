@@ -231,6 +231,7 @@ Class KeyboardDevice Extends InputDevice
 	
 	Function _EventFilter:Int( userData:Void Ptr,event:SDL_Event Ptr )
 	
+		if not event return 0
 		Return Keyboard.EventFilter( userData,event )
 	End
 	

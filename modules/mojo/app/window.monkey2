@@ -121,10 +121,7 @@ Class Window Extends View
 		Endif
 	
 #Else if __HOSTOS__="pi"
-		If w<>Frame.Width Or h<>Frame.Height
-			Frame=New Recti( 0,0,w,h )
-			print "w="+w+" h="+h
-		Endif
+		Frame=GetFrame()
 #Else
 		'ugly...fixme.
 		If MinSize<>_minSize
@@ -149,7 +146,6 @@ Class Window Extends View
 		
 #Endif
 		Measure()
-		
 		UpdateLayout()
 	End
 	
