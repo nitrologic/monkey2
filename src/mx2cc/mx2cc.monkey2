@@ -53,7 +53,7 @@ Function Main()
 	
 	If args.Length<2
 
-		Print "Usage: mx2cc makeapp|makemods|makedocs [-run] [-clean] [-verbose] [-target=desktop|emscripten] [-config=debug|release] source|modules..."
+		Print "Usage: mx2cc makeapp|makemods|makedocs [-run|-build] [-clean] [-verbose] [-target=desktop|emscripten] [-config=debug|release] source|modules..."
 
 #If __CONFIG__="release"
 		exit_(0)
