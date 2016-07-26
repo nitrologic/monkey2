@@ -1048,7 +1048,7 @@ void pm_read_short(PmInternal *midi, PmEvent *event)
             printf("pmBufferOverflow\n");
             midi->sysex_in_progress = FALSE;
         } else{
-            printf("pmBuffer unknown\n");           
+//            printf("pmBuffer unknown\n");           
         }
     }
 }
