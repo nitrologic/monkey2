@@ -13,12 +13,14 @@ Namespace opencv
 
 #If __HOSTOS__="macos"
 
-#Import "lib/mac/libopencv_core.3.1.dylib"
-#Import "lib/mac/libopencv_imgcodecs.3.1.dylib" 
-#Import "lib/mac/libopencv_imgproc.3.1.dylib" 
-#Import "lib/mac/libopencv_highgui.3.1.dylib"
-#Import "lib/mac/libopencv_video.3.1.dylib"
-#Import "lib/mac/libopencv_videoio.3.1.dylib"
+#Import "libs/libopencv_ts.a"
+
+#Import "libs/libopencv_core.3.1.0.dylib"
+#Import "libs/libopencv_imgcodecs.3.1.0.dylib" 
+#Import "libs/libopencv_imgproc.3.1.0.dylib" 
+#Import "libs/libopencv_highgui.3.1.0.dylib"
+#Import "libs/libopencv_video.3.1.0.dylib"
+#Import "libs/libopencv_videoio.3.1.0.dylib"
 
 #Endif
 
