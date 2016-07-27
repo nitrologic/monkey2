@@ -1,0 +1,8 @@
+{
+	"module":"opencv",
+	"version":"0.0.1",
+	"about":"OpenCV module",
+	"author":"Simon Armstrong",
+	"support":"https://github.com.nitrologic/opencv",
+	"depends":["libc"]
+}
