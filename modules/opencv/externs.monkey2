@@ -44,25 +44,5 @@ Extern
 Class CVDevice Extends Void 
 	global CaptureCount:Int
 	global Version:Int	
-	Function OpenCapture:CVDevice Ptr(index:Int)
+	Field isOpen:Bool
 End
-
-#rem
-	Field error:Int
-	Field errorText:Byte Ptr
-	Method Sleep(duration:Double)
-	Method GetInfo(index:Int)	
-
-	Method OpenOutput:Handle(index:Int)
-	Method OutputMessage(index:Int,data:Int)
-	Method OutputMessages(index:Int,bytes:Int Ptr,length:Int)
-	Method CloseOutput(handle:Handle)
-
-	Method OpenInput:Handle(index:Int)
-	Method HasInput:Bool(handle:Handle)
-	Method MidiEventData:Int()
-	Method MidiEventMessage:int(buffer:Void Ptr,length:int)
-	Method MidiEventTimestamp:Double()	
-	Method CloseInput(handle:Handle)
-#end
-

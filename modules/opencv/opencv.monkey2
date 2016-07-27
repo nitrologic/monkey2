@@ -8,6 +8,7 @@ Public
 #end
 
 Class OpenCV
+	Field device:CVDevice
 	Field version:="0.01"
 	Field captureCount:Int
 	Field rawBuffer:=New Byte[65536]
@@ -15,11 +16,14 @@ Class OpenCV
 	Method Sleep(seconds:Double)
 '		driver.Sleep(seconds)
 	End
-
+	
 #rem monkeydoc scan device bus
 #end
-	Method New() 
+
+	Method New(index:Int)
 		Print "OpenCVDevice.CaptureCount="+CVDevice.CaptureCount
+		device=New CVDevice()
+		Print "device[0].isOpen="+device.isOpen
 	End	
 	
 #rem monkeydoc close all open device channels

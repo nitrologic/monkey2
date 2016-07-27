@@ -8,6 +8,6 @@ Function Main()
 	Print "OpenCV test 0.1"
 	Print "Scanning Device Bus, please wait."
 
-	New OpenCV()
-	
+	Local cap:=New OpenCV(0)
+	Print "cap.isOpen="+cap.device.isOpen	
 End

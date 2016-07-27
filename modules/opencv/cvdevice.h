@@ -6,16 +6,10 @@
 
 // public monkey2 module interface
 
-class CVDevice{
-public:
+struct CVDevice{
 	static int Version;
 	static int CaptureCount;
-
 	bool isOpen;
-
-	static CVDevice *OpenCapture(int id);
-
-private:
 	cv::VideoCapture captureDevice;
-	CVDevice(int id);
+	CVDevice();
 };

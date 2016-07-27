@@ -3,7 +3,7 @@
 int CVDevice::Version=17;
 int CVDevice::CaptureCount=0;
 
-CVDevice::CVDevice(int id):captureDevice(id){
+CVDevice::CVDevice():captureDevice(0){
 	isOpen=captureDevice.isOpened();
 	if (isOpen){
 		CaptureCount++;
@@ -13,8 +13,4 @@ CVDevice::CVDevice(int id):captureDevice(id){
 	}else{
 		printf("no default capture device\n");
 	}
-}
-
-CVDevice *CVDevice::OpenCapture(int id){
-	return new CVDevice(id);
 }
