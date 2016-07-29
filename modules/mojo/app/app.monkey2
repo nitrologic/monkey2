@@ -65,7 +65,7 @@ Class AppInstance
 	
 		_config=config
 		
-		SDL_Init( SDL_INIT_EVERYTHING & ~SDL_INIT_AUDIO )
+		SDL_Init( SDL_INIT_EVERYTHING - SDL_INIT_AUDIO )
 		
 		_sdlThread=SDL_ThreadID()
 		
