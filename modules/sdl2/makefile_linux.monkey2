@@ -111,7 +111,7 @@ Namespace sdl2
 #Import "SDL/src/video/x11/SDL_x11touch.c"
 #Import "SDL/src/video/x11/SDL_x11video.c"
 #Import "SDL/src/video/x11/SDL_x11window.c"
-#Import "SDL/src/video/x11/SDL_x11xinput2.c"
+'#Import "SDL/src/video/x11/SDL_x11xinput2.c"
 
 #Import "SDL/src/video/SDL_blit.c"
 #Import "SDL/src/video/SDL_blit_0.c"
