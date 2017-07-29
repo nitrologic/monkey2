@@ -32,10 +32,11 @@ Namespace opencv
 
 #Import "<libasound.a>"
 #Import "<libpthread.a>"
-#import "pm_linux/finddefault.c"
-#import "pm_linux/pmlinux.c"
-#import "pm_linux/pmlinuxalsa.c"
-#import "porttime/ptlinux.c"
+
+'#import "pm_linux/finddefault.c"
+'#import "pm_linux/pmlinux.c"
+'#import "pm_linux/pmlinuxalsa.c"
+'#import "porttime/ptlinux.c"
 
 #Endif
 
